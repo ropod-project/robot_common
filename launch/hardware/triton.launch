@@ -1,0 +1,24 @@
+<launch>
+    <group ns="triton">
+        <node name="accerion_driver" pkg="accerion_driver" type="accerion_driver" output="screen">
+            <param name="serial_number"                       value="0" />
+            <param name="abs_ref_frame"                       value="map" />
+            <param name="abs_base_frame"                      value="triton_output_abs" />
+            <param name="abs_sensor_frame"                    value="triton_mount_abs" />
+            <param name="debug/use_external_reference_pose"   value="true" />
+            <param name="debug/external_reference_pose_topic" value="/ext_ref" />
+<!--	    <param name="debug/external_reference_pose_topic" value="/amcl_pose" /> -->
+<!--	    <param name="debug/external_reference_pose_topic" value="/ropod/odom" /> -->
+         </node>
+        <node name="accerion_visualization" pkg="accerion_driver" type="accerion_visualization" output="screen" />                
+    </group>
+
+    <param name="triton_description" command="cat $(find accerion_triton_description)/urdf/accerion_triton.xml" />
+    <node name="triton_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher">
+        <remap from="robot_description" to="triton_description" />
+        <remap from="joint_states"      to="triton_joint_states" />
+    </node> 
+    
+    <node name="triton_ext_ref_publisher" pkg="robot_common" type="triton_ext_ref_publisher" output="screen">
+    </node> 
+</launch>

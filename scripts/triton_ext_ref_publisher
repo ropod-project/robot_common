@@ -1,0 +1,89 @@
+#!/usr/bin/env python
+
+import tf
+import rospy
+import numpy as np
+import tf
+from geometry_msgs.msg import PoseWithCovarianceStamped
+from nav_msgs.msg import Odometry
+from std_msgs.msg import Bool
+
+use_amcl_pose_flag = True
+use_localization_mode_flag = False
+new_reset_pose_flag = True
+transformer = tf.TransformerROS()
+T_reset_pose = transformer.fromTranslationRotation((0,0,0),(0,0,0,1))
+
+covariance = np.zeros(36)
+covariance[0] = covariance[7] = 1 #30
+covariance[35] = 100 #0.05 #1000
+
+def geometry_msg_to_homogeneous_matrix(geometry_msg_pose):
+    p = geometry_msg_pose.position
+    q = geometry_msg_pose.orientation
+    return transformer.fromTranslationRotation((p.x,p.y,p.z),(q.x,q.y,q.z,q.w))  
+    
+def odom_callback(msg, pub):
+    global T_reset_pose, T_odom_at_reset_pose, new_reset_pose_flag, covariance
+    T_cur_odom = geometry_msg_to_homogeneous_matrix(msg.pose.pose)
+    if (new_reset_pose_flag):
+        T_odom_at_reset_pose = T_cur_odom
+        new_reset_pose_flag = False
+ 
+    T = np.matmul(T_reset_pose, np.matmul(np.linalg.inv(T_odom_at_reset_pose), T_cur_odom))
+    q = tf.transformations.quaternion_from_matrix(T)
+    p = T[:3,3]
+    msg.pose.pose.position.x = p[0]
+    msg.pose.pose.position.y = p[1]
+    msg.pose.pose.position.z = p[2]
+    msg.pose.pose.orientation.x = q[0]
+    msg.pose.pose.orientation.y = q[1]
+    msg.pose.pose.orientation.z = q[2]
+    msg.pose.pose.orientation.w = q[3]
+    msg.pose.covariance = covariance
+    pub.publish(msg)
+
+def reset_pose_callback(msg):
+    global T_reset_pose, new_reset_pose_flag, use_amcl_pose_flag, use_localization_mode_flag
+    if (not use_amcl_pose_flag and not use_localization_mode_flag):
+        T_reset_pose = geometry_msg_to_homogeneous_matrix(msg.pose.pose)
+        new_reset_pose_flag = True
+
+def amcl_pose_callback(msg):
+    global T_reset_pose, new_reset_pose_flag, use_amcl_pose_flag, use_localization_mode_flag
+    if (use_amcl_pose_flag and not use_localization_mode_flag):
+        T_reset_pose = geometry_msg_to_homogeneous_matrix(msg.pose.pose)
+        new_reset_pose_flag = True
+
+def triton_corrections_callback(msg):
+    global T_reset_pose, new_reset_pose_flag, use_localization_mode_flag
+    if (use_localization_mode_flag):
+        T_reset_pose = geometry_msg_to_homogeneous_matrix(msg.pose.pose)
+        new_reset_pose_flag = True
+
+def use_amcl_pose_callback(msg):
+    global use_amcl_pose_flag
+    use_amcl_pose_flag = msg.data
+    rospy.loginfo("Ext Reference Publisher: USE AMCL = " + str(use_amcl_pose_flag))
+
+        
+def use_localization_mode_callback(msg):
+    global use_localization_mode_flag
+    use_localization_mode_flag = msg.data
+    rospy.loginfo("Ext Reference Publisher: USE Localization Mode (feeds back correctios to external reference for Triton) = " + str(use_localization_mode_flag))
+
+def main():
+    rospy.init_node('triton_ext_ref_publisher')
+    pub = rospy.Publisher('/ext_ref', Odometry, queue_size=10)
+    rospy.Subscriber('/ropod/odom', Odometry, odom_callback, callback_args=pub)
+    rospy.Subscriber('~reset_pose', PoseWithCovarianceStamped, reset_pose_callback)
+    rospy.Subscriber('/amcl_pose', PoseWithCovarianceStamped, amcl_pose_callback)
+    rospy.Subscriber('~use_amcl_pose', Bool, use_amcl_pose_callback)
+    rospy.Subscriber('/triton/corrections', Odometry, triton_corrections_callback)
+    rospy.Subscriber('~use_localization_mode', Bool, use_localization_mode_callback)
+    rospy.loginfo("Ext Reference Publisher: Ready.")
+    rospy.spin()
+
+if __name__ == '__main__':
+    main()
+

@@ -58,7 +58,7 @@
 		<param name="laserBeamNr" value="1400"/>
 		<param name="zDistortionCoeff" value="0.0"/>
 		<param name="xDistortionCoeff" value="1.0"/>
-		<param name="floorTolerance" value="0.10"/>
+		<param name="floorTolerance" value="0.30"/>
 		<param name="ceilingTolerance" value="1.5"/>
 		<param name="rowSampling" value="1"/>
 		<param name="colSampling" value="1"/>

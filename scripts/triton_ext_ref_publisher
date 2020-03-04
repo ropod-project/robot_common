@@ -15,7 +15,7 @@ transformer = tf.TransformerROS()
 T_reset_pose = transformer.fromTranslationRotation((0,0,0),(0,0,0,1))
 
 covariance = np.zeros(36)
-covariance[0] = covariance[7] = 0.3 #30
+covariance[0] = covariance[7] = 0.03 #30
 covariance[35] = 10 #0.05 #1000
 
 def geometry_msg_to_homogeneous_matrix(geometry_msg_pose):
@@ -82,7 +82,8 @@ def main():
     rospy.init_node('triton_ext_ref_publisher')
     pub = rospy.Publisher('/ext_ref', Odometry, queue_size=10)
     #rospy.Subscriber('/ropod/odom', Odometry, odom_callback, callback_args=pub)
-    rospy.Subscriber('/ropod/ropod_low_level_control/imu_compensated_odom', Odometry, odom_callback, callback_args=pub)
+    #rospy.Subscriber('/ropod/ropod_low_level_control/imu_compensated_odom', Odometry, odom_callback, callback_args=pub)
+    rospy.Subscriber('/ropod/odom', Odometry, odom_callback, callback_args=pub)
     rospy.Subscriber('~reset_pose', PoseWithCovarianceStamped, reset_pose_callback)
     rospy.Subscriber('/amcl_pose', PoseWithCovarianceStamped, amcl_pose_callback)
     rospy.Subscriber('~use_amcl_pose', Bool, use_amcl_pose_callback)

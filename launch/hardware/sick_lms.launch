@@ -1,0 +1,35 @@
+<launch>
+  <arg name="host_front" default="192.168.1.36" />
+  <node pkg="lms1xx" name="sick_lms_front" type="LMS1xx_node">
+    <param name="host" value="$(arg host_front)" />
+    <param name="frame_id" value="/ropod/lms_front" />
+    <remap from="/scan" to="/ropod/laser/scan_front"/>	
+  </node>
+
+  <node pkg="tf" type="static_transform_publisher" name="tf_link_lms_front" args="0.25 0.25 0 0.785 0 3.1415 /ropod/base_link /ropod/lms_front 33" />
+
+
+  <arg name="host_back" default="192.168.1.35" />
+  <node pkg="lms1xx" name="sick_lms_back" type="LMS1xx_node">
+    <param name="host" value="$(arg host_back)" />
+    <param name="frame_id" value="/ropod/lms_back" />
+    <remap from="/scan" to="/ropod/laser/scan_back"/>
+  </node>
+
+  <node pkg="tf" type="static_transform_publisher" name="tf_link_lms_back" args="-0.25 -0.25 0 -2.355 0 3.1415 /ropod/base_link /ropod/lms_back 33" />
+
+  <node pkg="cob_scan_unifier" type="scan_unifier_node" name="scan_unifier_node" output="screen">
+      <rosparam param="input_scans">["/ropod/laser/scan_front","/ropod/laser/scan_back"]</rosparam>
+      <param name="loop_rate" value="20"/>
+      <param name="frame" value="/ropod/base_link"/>
+      <remap from="scan_unified" to="/ropod/laser/scan_unified_unfiltered"/> 
+  </node>
+
+  <node pkg="laser_filters" type="scan_to_scan_filter_chain"
+      name="laser_filter">
+    <rosparam command="load" file="$(find robot_common)/launch/hardware/sick_lms_filter.yaml" />
+    <remap from="scan" to="/ropod/laser/scan_unified_unfiltered" />
+    <remap from="scan_filtered" to="/ropod/laser/scan_unified" />
+  </node>
+
+</launch>

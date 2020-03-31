@@ -7,7 +7,7 @@
   <arg name="port_name" default="/dev/espros"/>
   <arg name="frame_rate" default="10"/>
   <arg name="stream" default="distance"/>
-  <arg name="integration_time_0"  default="100"/>
+  <arg name="integration_time_0"  default="200"/>
   <arg name="integration_time_1"  default="0"/>
   <arg name="integration_time_2"  default="0"/>
   <arg name="integration_time_3"  default="0"/>
@@ -21,10 +21,10 @@
   <arg name="offset_distance" default="0"/>
   <arg name="image_type" default="3"/>
   <arg name="mode" default="0"/>
-  <arg name="roi_leftX" default="0"/>
-  <arg name="roi_topY" default="0"/>
-  <arg name="roi_rightX" default="159"/>
-  <arg name="roi_bottomY" default="59"/>
+  <arg name="roi_leftX" default="10"/>
+  <arg name="roi_topY" default="10"/>
+  <arg name="roi_rightX" default="149"/>
+  <arg name="roi_bottomY" default="49"/>
   <arg name="automatic_integration_time" default="false"/>
 
 
@@ -33,7 +33,7 @@
           type="tof_cam635_node"
           name="$(arg nn)"
           output="screen"
-          respawn="$(arg respawn)"
+          respawn="true"
           >
 
       <param name="stream" value="$(arg stream)"/>
@@ -53,10 +53,10 @@
       <param name="offset_distance" value="$(arg offset_distance)"/>
       <param name="image_type"   value="$(arg image_type)"/>
       <param name="mode"        value="$(arg mode)"/>
-      <param name="roi_leftX"   value="$(arg roi_leftX)"/>
-      <param name="roi_topY"    value="$(arg roi_topY)"/>
-      <param name="roi_rightX"  value="$(arg roi_rightX)"/>
-      <param name="roi_bottomY" value="$(arg roi_bottomY)"/>
+      <param name="roi_left_x"   value="$(arg roi_leftX)"/>
+      <param name="roi_top_y"    value="$(arg roi_topY)"/>
+      <param name="roi_right_x"  value="$(arg roi_rightX)"/>
+      <param name="roi_bottom_y" value="$(arg roi_bottomY)"/>
 
       <remap from="image_raw" to="$(arg nn)/image_raw"/> 
       <remap from="camera_info" to="$(arg nn)/camera_info"/> 
@@ -66,7 +66,7 @@
 
 <!--    <node name="rviz" pkg="rviz" type="rviz" args= "-d $(find espros_tof_cam635)/rviz/config_cam635.rviz" > </node>
     <node name="rqt_reconfigure" pkg="rqt_reconfigure" type="rqt_reconfigure"> </node> -->
-    <node name="tf_link_espros_wheel_camera" pkg="tf" type="static_transform_publisher" args="-0.22 0 0.25 1.66 0 -1.59 /ropod/base_link sensor_frame 1" />
+    <node name="tf_link_espros_wheel_camera" pkg="tf" type="static_transform_publisher" args="-0.16 0 0.09 1.57 0 -1.55 /ropod/base_link sensor_frame 1" />
 
 
   </group>

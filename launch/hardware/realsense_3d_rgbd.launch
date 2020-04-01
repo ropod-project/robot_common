@@ -3,7 +3,7 @@
   <!--<node pkg="tf" type="static_transform_publisher" name="tf_link_realsense_wheel_camera" args="0.285 0.0 0.27 1.57 3.14 1.57 /ropod/base_link /wheel_camera_color_optical_frame 33" /> -->
   <node pkg="tf" type="static_transform_publisher" name="tf_link_realsense_top_camera_frame" args="0.0 0.0 0.0 1.57 3.1415 1.57 /top_camera_frame /top_camera_color_optical_frame 33" />
   <!--<node pkg="tf" type="static_transform_publisher" name="tf_link_realsense_top_camera_optical" args="0.05 0.0 1.0 3.1415 0.75 0.0 /ropod/base_link /top_camera_frame 33" />-->
-  <node pkg="tf" type="static_transform_publisher" name="tf_link_realsense_top_camera_optical" args="-0.05 -0.03 1.08 3.1415 1.12 -0.08 /ropod/base_link /top_camera_frame 33" />
+  <node pkg="tf" type="static_transform_publisher" name="tf_link_realsense_top_camera_optical" args="-0.12 -0.03 1.08 3.1415 1.10 -0.08 /ropod/base_link /top_camera_frame 33" />
 
 
 <!-- <arg name="serial_no"           default="926522071861"/> -->
